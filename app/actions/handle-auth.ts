@@ -1,7 +1,18 @@
-"user server";
+"use server";
 
-import { signIn } from "next-auth/react";
+import { FirestoreAdapter } from "@auth/firebase-adapter";
+import { auth, signIn, signOut } from "../lib/auth";
+import { db } from "../lib/firebase";
 
-export default function handleAuth() {
-  signIn("google");
+export async function handleAuth() {
+  const session = await auth();
+
+  if (session) {
+    return await signOut({ redirectTo: "/" });
+  }
+
+  return await signIn("google", {
+    redirectTo: "/dashboard",
+    adapter: FirestoreAdapter(db),
+  });
 }
